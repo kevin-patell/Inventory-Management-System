@@ -1,5 +1,5 @@
 /**
- * Apex Global Inventory - Main JavaScript
+ * Smart Inventory System - Main JavaScript
  */
 
 document.addEventListener('DOMContentLoaded', function () {

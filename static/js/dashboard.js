@@ -1,5 +1,5 @@
 /**
- * Apex Global Inventory - Dashboard Charts Initialization
+ * Smart Inventory System - Dashboard Charts Initialization
  */
 
 document.addEventListener('DOMContentLoaded', function () {

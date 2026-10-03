@@ -31,9 +31,9 @@ def seed_database():
 
         # 2. Create Default Users
         users_data = [
-            ('admin', 'admin@apexi.com', 'admin123', 'Alexander Wright', '+1 (555) 019-2831', role_objs['Admin']),
-            ('manager', 'manager@apexi.com', 'manager123', 'Elena Rostova', '+1 (555) 018-7294', role_objs['Manager']),
-            ('staff', 'staff@apexi.com', 'staff123', 'Marcus Vance', '+1 (555) 014-9912', role_objs['Staff'])
+            ('admin', 'admin@smartims.com', 'admin123', 'Alexander Wright', '+1 (555) 019-2831', role_objs['Admin']),
+            ('manager', 'manager@smartims.com', 'manager123', 'Elena Rostova', '+1 (555) 018-7294', role_objs['Manager']),
+            ('staff', 'staff@smartims.com', 'staff123', 'Marcus Vance', '+1 (555) 014-9912', role_objs['Staff'])
         ]
         user_objs = {}
         for username, email, pwd, fname, phone, role in users_data:
@@ -108,7 +108,7 @@ def seed_database():
         # 5. Create Customers
         customers_data = [
             Customer(name='Acme Global Technologies', email='procure@acmeglobal.com', phone='+1 (555) 301-4401', address='100 Corporate Center, New York, NY'),
-            Customer(name='Apex Design Studios', email='info@apexstudios.design', phone='+1 (555) 302-8820', address='55 Creative Way, Austin, TX'),
+            Customer(name='Smart Design Studios', email='info@smartstudios.design', phone='+1 (555) 302-8820', address='55 Creative Way, Austin, TX'),
             Customer(name='CyberPulse Systems Inc.', email='billing@cyberpulse.io', phone='+1 (555) 303-9911', address='880 Tech Terrace, Boston, MA'),
             Customer(name='Sarah Jenkins', email='sarah.jenkins@gmail.com', phone='+1 (555) 404-1234', address='12 Oak Ridge Rd, Denver, CO'),
             Customer(name='Walk-in Retail Customer', email='retail@store.local', phone='', address='In-store Checkout')

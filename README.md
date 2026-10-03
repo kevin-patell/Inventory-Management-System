@@ -1,4 +1,4 @@
-# Apex Global Inventory Management System
+# Smart Inventory Management System
 
 A modern, production-grade **Inventory Management System (IMS)** built with **Python, Flask, SQLite, Bootstrap 5, and JavaScript**. Designed for small-to-medium enterprises (SMEs) to track products, suppliers, customers, purchases, sales, warehouse stock movements, and financial profit analytics from a single, unified web application.
 

@@ -1,5 +1,5 @@
 /**
- * Apex Global Inventory - Dynamic Line Items & Live Calculation (POS & Purchases)
+ * Smart Inventory System - Dynamic Line Items & Live Calculation (POS & Purchases)
  */
 
 function initOrderBuilder(mode = 'sale') {
