@@ -71,12 +71,12 @@ def stock_report():
             download_name="inventory_valuation_report.pdf"
         )
     elif export_format == 'csv':
-        headers = ['SKU', 'Name', 'Category', 'Supplier', 'Stock', 'Min Level', 'Cost Price ($)', 'Retail Price ($)', 'Valuation ($)']
+        headers = ['SKU', 'Name', 'Category', 'Supplier', 'Stock', 'Min Level', 'Cost Price (₹)', 'Retail Price (₹)', 'Valuation (₹)']
         rows = [[p.sku, p.name, p.category.name if p.category else '', p.supplier.name if p.supplier else '', p.current_stock, p.min_stock_level, f"{p.purchase_price:.2f}", f"{p.selling_price:.2f}", f"{p.inventory_value:.2f}"] for p in products]
         data = export_to_csv(headers, rows)
         return Response(data, mimetype="text/csv", headers={"Content-disposition": "attachment; filename=stock_valuation_report.csv"})
     elif export_format == 'excel':
-        headers = ['SKU', 'Name', 'Category', 'Supplier', 'Stock', 'Min Level', 'Cost Price ($)', 'Retail Price ($)', 'Valuation ($)']
+        headers = ['SKU', 'Name', 'Category', 'Supplier', 'Stock', 'Min Level', 'Cost Price (₹)', 'Retail Price (₹)', 'Valuation (₹)']
         rows = [[p.sku, p.name, p.category.name if p.category else '', p.supplier.name if p.supplier else '', p.current_stock, p.min_stock_level, p.purchase_price, p.selling_price, p.inventory_value] for p in products]
         data = export_to_excel("Stock Valuation Report", headers, rows)
         return Response(data, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-disposition": "attachment; filename=stock_valuation_report.xlsx"})
@@ -128,7 +128,7 @@ def sales_report():
 
     export_format = request.args.get('export')
     if export_format == 'csv':
-        headers = ['Invoice Number', 'Date', 'Customer', 'Payment Method', 'Subtotal ($)', 'Discount ($)', 'Tax ($)', 'Total ($)', 'Profit ($)']
+        headers = ['Invoice Number', 'Date', 'Customer', 'Payment Method', 'Subtotal (₹)', 'Discount (₹)', 'Tax (₹)', 'Total (₹)', 'Profit (₹)']
         rows = [[s.invoice_number, s.sale_date.strftime('%Y-%m-%d'), s.customer_name, s.payment_method, f"{s.subtotal:.2f}", f"{s.discount_amount:.2f}", f"{s.tax_amount:.2f}", f"{s.total_amount:.2f}", f"{s.gross_profit:.2f}"] for s in sales]
         data = export_to_csv(headers, rows)
         return Response(data, mimetype="text/csv", headers={"Content-disposition": "attachment; filename=sales_report.csv"})
@@ -177,7 +177,7 @@ def purchases_report():
 
     export_format = request.args.get('export')
     if export_format == 'csv':
-        headers = ['PO Number', 'Date', 'Supplier', 'Status', 'Payment Status', 'Subtotal ($)', 'Tax ($)', 'Shipping ($)', 'Total ($)']
+        headers = ['PO Number', 'Date', 'Supplier', 'Status', 'Payment Status', 'Subtotal (₹)', 'Tax (₹)', 'Shipping (₹)', 'Total (₹)']
         rows = [[p.po_number, p.order_date.strftime('%Y-%m-%d'), p.supplier.name if p.supplier else '', p.status, p.payment_status, f"{p.subtotal:.2f}", f"{p.tax_amount:.2f}", f"{p.shipping_fee:.2f}", f"{p.total_amount:.2f}"] for p in purchases]
         data = export_to_csv(headers, rows)
         return Response(data, mimetype="text/csv", headers={"Content-disposition": "attachment; filename=purchases_report.csv"})

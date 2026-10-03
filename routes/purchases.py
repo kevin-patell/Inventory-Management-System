@@ -157,7 +157,7 @@ def create():
 
             create_notification(
                 title=f"New Purchase Order: {po_number}",
-                message=f"Purchase order {po_number} created for supplier {purchase.supplier.name} totaling ${total_amount:,.2f}.",
+                message=f"Purchase order {po_number} created for supplier {purchase.supplier.name} totaling ₹{total_amount:,.2f}.",
                 type='purchase',
                 link=f"/purchases/{purchase.id}"
             )
@@ -166,7 +166,7 @@ def create():
                 action='PURCHASE_CREATE',
                 target_type='PurchaseOrder',
                 target_id=purchase.id,
-                details=f"Created PO {po_number} ({order_status}) for supplier {purchase.supplier.name}, total ${total_amount:.2f}"
+                details=f"Created PO {po_number} ({order_status}) for supplier {purchase.supplier.name}, total ₹{total_amount:.2f}"
             )
 
             flash(f"Purchase order '{po_number}' created successfully!", 'success')
@@ -253,7 +253,7 @@ def cancel(id):
 @login_required
 def export_csv():
     purchases = PurchaseOrder.query.order_by(PurchaseOrder.order_date.desc()).all()
-    headers = ['PO Number', 'Supplier', 'Order Date', 'Status', 'Payment Status', 'Items Count', 'Subtotal ($)', 'Tax ($)', 'Shipping ($)', 'Discount ($)', 'Total ($)']
+    headers = ['PO Number', 'Supplier', 'Order Date', 'Status', 'Payment Status', 'Items Count', 'Subtotal (₹)', 'Tax (₹)', 'Shipping (₹)', 'Discount (₹)', 'Total (₹)']
     rows = []
     for p in purchases:
         rows.append([
@@ -280,7 +280,7 @@ def export_csv():
 @login_required
 def export_excel():
     purchases = PurchaseOrder.query.order_by(PurchaseOrder.order_date.desc()).all()
-    headers = ['PO Number', 'Supplier', 'Order Date', 'Status', 'Payment Status', 'Items Count', 'Subtotal ($)', 'Tax ($)', 'Shipping ($)', 'Discount ($)', 'Total ($)']
+    headers = ['PO Number', 'Supplier', 'Order Date', 'Status', 'Payment Status', 'Items Count', 'Subtotal (₹)', 'Tax (₹)', 'Shipping (₹)', 'Discount (₹)', 'Total (₹)']
     rows = []
     for p in purchases:
         rows.append([

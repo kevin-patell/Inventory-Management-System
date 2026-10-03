@@ -63,7 +63,7 @@
           <h5 class="fw-bold mb-3 text-dark border-bottom pb-2">Pricing & Stock Levels</h5>
           <div class="row g-3 mb-4">
             <div class="col-md-3 col-sm-6">
-              <label class="form-label">Purchase / Cost Price ($) <span class="text-danger">*</span></label>
+              <label class="form-label">Purchase / Cost Price (₹) <span class="text-danger">*</span></label>
               {{ form.purchase_price(class="form-control", id="cost-input", step="0.01", placeholder="0.00") }}
               {% if form.purchase_price.errors %}
                 <div class="text-danger small mt-1">{{ form.purchase_price.errors[0] }}</div>
@@ -71,7 +71,7 @@
             </div>
 
             <div class="col-md-3 col-sm-6">
-              <label class="form-label">Selling / Retail Price ($) <span class="text-danger">*</span></label>
+              <label class="form-label">Selling / Retail Price (₹) <span class="text-danger">*</span></label>
               {{ form.selling_price(class="form-control", id="selling-input", step="0.01", placeholder="0.00") }}
               {% if form.selling_price.errors %}
                 <div class="text-danger small mt-1">{{ form.selling_price.errors[0] }}</div>

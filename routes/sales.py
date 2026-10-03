@@ -156,7 +156,7 @@ def create():
 
             create_notification(
                 title=f"Sale Completed: {invoice_number}",
-                message=f"Sale {invoice_number} processed for {sale.customer_name} totaling ${total_amount:,.2f}.",
+                message=f"Sale {invoice_number} processed for {sale.customer_name} totaling ₹{total_amount:,.2f}.",
                 type='sale',
                 link=f"/sales/{sale.id}"
             )
@@ -165,7 +165,7 @@ def create():
                 action='SALE_CREATE',
                 target_type='Sale',
                 target_id=sale.id,
-                details=f"Processed sale {invoice_number} for ${total_amount:.2f} ({payment_method})"
+                details=f"Processed sale {invoice_number} for ₹{total_amount:.2f} ({payment_method})"
             )
 
             flash(f"Sale invoice '{invoice_number}' created successfully!", 'success')
@@ -243,7 +243,7 @@ def return_sale(id):
 @login_required
 def export_csv():
     sales = Sale.query.order_by(Sale.sale_date.desc()).all()
-    headers = ['Invoice Number', 'Customer', 'Phone', 'Date', 'Status', 'Payment Method', 'Items Count', 'Subtotal ($)', 'Discount ($)', 'Tax ($)', 'Total ($)', 'Profit ($)']
+    headers = ['Invoice Number', 'Customer', 'Phone', 'Date', 'Status', 'Payment Method', 'Items Count', 'Subtotal (₹)', 'Discount (₹)', 'Tax (₹)', 'Total (₹)', 'Profit (₹)']
     rows = []
     for s in sales:
         rows.append([
@@ -271,7 +271,7 @@ def export_csv():
 @login_required
 def export_excel():
     sales = Sale.query.order_by(Sale.sale_date.desc()).all()
-    headers = ['Invoice Number', 'Customer', 'Phone', 'Date', 'Status', 'Payment Method', 'Items Count', 'Subtotal ($)', 'Discount ($)', 'Tax ($)', 'Total ($)', 'Profit ($)']
+    headers = ['Invoice Number', 'Customer', 'Phone', 'Date', 'Status', 'Payment Method', 'Items Count', 'Subtotal (₹)', 'Discount (₹)', 'Tax (₹)', 'Total (₹)', 'Profit (₹)']
     rows = []
     for s in sales:
         rows.append([

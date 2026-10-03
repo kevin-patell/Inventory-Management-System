@@ -370,7 +370,7 @@ def seed_database():
             ),
             Notification(
                 title='New Purchase Order Created',
-                message='Purchase Order PO-20261001-4418 for $2,298.00 has been sent to Silicon Valley Tech Supply.',
+                message='Purchase Order PO-20261001-4418 for ₹2,298.00 has been sent to Silicon Valley Tech Supply.',
                 type='purchase',
                 link='/purchases/3',
                 is_read=True,
@@ -378,7 +378,7 @@ def seed_database():
             ),
             Notification(
                 title='Sale Invoice Completed',
-                message='Invoice INV-20261003-9182 generated for Walk-in Retail Customer ($124.18).',
+                message='Invoice INV-20261003-9182 generated for Walk-in Retail Customer (₹124.18).',
                 type='sale',
                 link='/sales/3',
                 is_read=False,
@@ -391,7 +391,7 @@ def seed_database():
         audits = [
             AuditLog(username='admin', action='LOGIN', target_type='User', details='System Administrator signed into dashboard', created_at=datetime.utcnow() - timedelta(hours=1)),
             AuditLog(username='manager', action='STOCK_ADJUSTMENT', target_type='StockAdjustment', target_id=adj1.adjustment_number, details='Damaged stock deduction of 2 units on Heavy-Duty Industrial Tape', created_at=datetime.utcnow() - timedelta(days=8)),
-            AuditLog(username='staff', action='SALE_CREATE', target_type='Sale', target_id='3', details='Processed counter sale invoice INV-20261003-9182 ($124.18)', created_at=datetime.utcnow() - timedelta(hours=2)),
+            AuditLog(username='staff', action='SALE_CREATE', target_type='Sale', target_id='3', details='Processed counter sale invoice INV-20261003-9182 (₹124.18)', created_at=datetime.utcnow() - timedelta(hours=2)),
             AuditLog(username='admin', action='PRODUCT_CREATE', target_type='Product', target_id='1', details='Catalog item created: UltraBook Pro 15" i7 16GB', created_at=datetime.utcnow() - timedelta(days=20))
         ]
         db.session.add_all(audits)

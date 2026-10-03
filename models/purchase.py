@@ -51,7 +51,7 @@ class PurchaseOrder(db.Model):
         }
 
     def __repr__(self):
-        return f"<PurchaseOrder {self.po_number} - ${self.total_amount}>"
+        return f"<PurchaseOrder {self.po_number} - ₹{self.total_amount}>"
 
 class PurchaseItem(db.Model):
     __tablename__ = 'purchase_items'

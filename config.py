@@ -19,7 +19,8 @@ class Config:
     
     # App Settings
     ITEMS_PER_PAGE = 10
-    CURRENCY_SYMBOL = '$'
+    CURRENCY_SYMBOL = '₹'
+    PDF_CURRENCY_SYMBOL = 'Rs. '
     COMPANY_NAME = 'Apex Global Inventory'
     COMPANY_ADDRESS = '100 Business Tech Blvd, Suite 400, Silicon City, CA'
     COMPANY_PHONE = '+1 (800) 555-0199'

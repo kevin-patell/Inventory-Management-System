@@ -74,6 +74,7 @@ def generate_sales_invoice_pdf(sale):
     )
     
     styles = get_pdf_styles()
+    pdf_currency = getattr(Config, 'PDF_CURRENCY_SYMBOL', 'Rs. ')
     story = []
 
     # Header Section
@@ -125,9 +126,9 @@ def generate_sales_invoice_pdf(sale):
         items_data.append([
             str(idx),
             Paragraph(item_desc, styles['body']),
-            f"{Config.CURRENCY_SYMBOL}{item.unit_price:.2f}",
+            f"{pdf_currency}{item.unit_price:.2f}",
             str(item.quantity),
-            f"{Config.CURRENCY_SYMBOL}{item.total_price:.2f}"
+            f"{pdf_currency}{item.total_price:.2f}"
         ])
 
     items_table = Table(items_data, colWidths=[30, 270, 80, 50, 110])
@@ -149,10 +150,10 @@ def generate_sales_invoice_pdf(sale):
 
     # Totals Summary Table
     totals_data = [
-        ['Subtotal:', f"{Config.CURRENCY_SYMBOL}{sale.subtotal:.2f}"],
-        ['Discount:', f"-{Config.CURRENCY_SYMBOL}{sale.discount_amount:.2f}"],
-        ['Tax (GST/VAT):', f"+{Config.CURRENCY_SYMBOL}{sale.tax_amount:.2f}"],
-        ['Grand Total:', f"{Config.CURRENCY_SYMBOL}{sale.total_amount:.2f}"]
+        ['Subtotal:', f"{pdf_currency}{sale.subtotal:.2f}"],
+        ['Discount:', f"-{pdf_currency}{sale.discount_amount:.2f}"],
+        ['Tax (GST/VAT):', f"+{pdf_currency}{sale.tax_amount:.2f}"],
+        ['Grand Total:', f"{pdf_currency}{sale.total_amount:.2f}"]
     ]
     totals_table = Table(totals_data, colWidths=[430, 110])
     totals_table.setStyle(TableStyle([
@@ -193,6 +194,7 @@ def generate_purchase_order_pdf(purchase):
     )
     
     styles = get_pdf_styles()
+    pdf_currency = getattr(Config, 'PDF_CURRENCY_SYMBOL', 'Rs. ')
     story = []
 
     # Header
@@ -249,9 +251,9 @@ def generate_purchase_order_pdf(purchase):
         items_data.append([
             str(idx),
             Paragraph(item_desc, styles['body']),
-            f"{Config.CURRENCY_SYMBOL}{item.unit_price:.2f}",
+            f"{pdf_currency}{item.unit_price:.2f}",
             str(item.quantity),
-            f"{Config.CURRENCY_SYMBOL}{item.total_price:.2f}"
+            f"{pdf_currency}{item.total_price:.2f}"
         ])
 
     items_table = Table(items_data, colWidths=[30, 270, 80, 50, 110])
@@ -273,11 +275,11 @@ def generate_purchase_order_pdf(purchase):
 
     # Totals
     totals_data = [
-        ['Subtotal:', f"{Config.CURRENCY_SYMBOL}{purchase.subtotal:.2f}"],
-        ['Discount:', f"-{Config.CURRENCY_SYMBOL}{purchase.discount_amount:.2f}"],
-        ['Tax:', f"+{Config.CURRENCY_SYMBOL}{purchase.tax_amount:.2f}"],
-        ['Shipping:', f"+{Config.CURRENCY_SYMBOL}{purchase.shipping_fee:.2f}"],
-        ['Total Order Amount:', f"{Config.CURRENCY_SYMBOL}{purchase.total_amount:.2f}"]
+        ['Subtotal:', f"{pdf_currency}{purchase.subtotal:.2f}"],
+        ['Discount:', f"-{pdf_currency}{purchase.discount_amount:.2f}"],
+        ['Tax:', f"+{pdf_currency}{purchase.tax_amount:.2f}"],
+        ['Shipping:', f"+{pdf_currency}{purchase.shipping_fee:.2f}"],
+        ['Total Order Amount:', f"{pdf_currency}{purchase.total_amount:.2f}"]
     ]
     totals_table = Table(totals_data, colWidths=[430, 110])
     totals_table.setStyle(TableStyle([
@@ -313,6 +315,7 @@ def generate_inventory_report_pdf(products, title="Inventory Valuation & Stock R
     )
     
     styles = get_pdf_styles()
+    pdf_currency = getattr(Config, 'PDF_CURRENCY_SYMBOL', 'Rs. ')
     story = []
 
     # Title
@@ -330,8 +333,8 @@ def generate_inventory_report_pdf(products, title="Inventory Valuation & Stock R
         [
             f"Total SKUs: {len(products)}",
             f"Total Units in Stock: {total_qty}",
-            f"Total Cost Valuation: {Config.CURRENCY_SYMBOL}{total_cost_val:,.2f}",
-            f"Total Retail Value: {Config.CURRENCY_SYMBOL}{total_retail_val:,.2f}"
+            f"Total Cost Valuation: {pdf_currency}{total_cost_val:,.2f}",
+            f"Total Retail Value: {pdf_currency}{total_retail_val:,.2f}"
         ]
     ]
     summary_table = Table(summary_data, colWidths=[120, 130, 145, 145])
@@ -356,9 +359,9 @@ def generate_inventory_report_pdf(products, title="Inventory Valuation & Stock R
             Paragraph(p.name[:35], styles['body']),
             p.category.name if p.category else 'N/A',
             str(p.current_stock),
-            f"{Config.CURRENCY_SYMBOL}{p.purchase_price:.2f}",
-            f"{Config.CURRENCY_SYMBOL}{p.selling_price:.2f}",
-            f"{Config.CURRENCY_SYMBOL}{p.inventory_value:.2f}"
+            f"{pdf_currency}{p.purchase_price:.2f}",
+            f"{pdf_currency}{p.selling_price:.2f}",
+            f"{pdf_currency}{p.inventory_value:.2f}"
         ])
 
     table = Table(table_data, colWidths=[70, 180, 80, 45, 55, 55, 55])

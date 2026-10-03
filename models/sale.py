@@ -62,7 +62,7 @@ class Sale(db.Model):
         }
 
     def __repr__(self):
-        return f"<Sale {self.invoice_number} - ${self.total_amount}>"
+        return f"<Sale {self.invoice_number} - ₹{self.total_amount}>"
 
 class SaleItem(db.Model):
     __tablename__ = 'sale_items'

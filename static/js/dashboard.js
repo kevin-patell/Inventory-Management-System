@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
           data: {
             labels: data.sales_trend.labels,
             datasets: [{
-              label: 'Daily Revenue ($)',
+              label: 'Daily Revenue (₹)',
               data: data.sales_trend.data,
               borderColor: '#4f46e5',
               backgroundColor: gradient,
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
               tooltip: {
                 callbacks: {
                   label: function (context) {
-                    return ` Revenue: $${context.parsed.y.toFixed(2)}`;
+                    return ` Revenue: ₹${context.parsed.y.toFixed(2)}`;
                   }
                 }
               }
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 grid: { color: '#f1f5f9' },
                 ticks: {
                   callback: function (val) {
-                    return '$' + val;
+                    return '₹' + val;
                   }
                 }
               },

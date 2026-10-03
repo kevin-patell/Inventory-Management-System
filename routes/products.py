@@ -255,7 +255,7 @@ def api_generate_sku():
 @login_required
 def export_csv():
     products = Product.query.order_by(Product.name).all()
-    headers = ['ID', 'SKU', 'Name', 'Category', 'Supplier', 'Cost Price ($)', 'Retail Price ($)', 'Current Stock', 'Min Level', 'Stock Status', 'Inventory Value ($)', 'Status']
+    headers = ['ID', 'SKU', 'Name', 'Category', 'Supplier', 'Cost Price (₹)', 'Retail Price (₹)', 'Current Stock', 'Min Level', 'Stock Status', 'Inventory Value (₹)', 'Status']
     rows = []
     for p in products:
         rows.append([
@@ -283,7 +283,7 @@ def export_csv():
 @login_required
 def export_excel():
     products = Product.query.order_by(Product.name).all()
-    headers = ['ID', 'SKU', 'Name', 'Category', 'Supplier', 'Cost Price ($)', 'Retail Price ($)', 'Current Stock', 'Min Level', 'Stock Status', 'Inventory Value ($)', 'Status']
+    headers = ['ID', 'SKU', 'Name', 'Category', 'Supplier', 'Cost Price (₹)', 'Retail Price (₹)', 'Current Stock', 'Min Level', 'Stock Status', 'Inventory Value (₹)', 'Status']
     rows = []
     for p in products:
         rows.append([

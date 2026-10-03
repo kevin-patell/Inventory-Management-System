@@ -27,13 +27,13 @@ function initOrderBuilder(mode = 'sale') {
       const lineTotal = qty * price;
 
       if (totalEl) {
-        totalEl.textContent = '$' + lineTotal.toFixed(2);
+        totalEl.textContent = '₹' + lineTotal.toFixed(2);
       }
       subtotal += lineTotal;
     });
 
     if (subtotalEl) {
-      subtotalEl.textContent = '$' + subtotal.toFixed(2);
+      subtotalEl.textContent = '₹' + subtotal.toFixed(2);
     }
 
     const discount = parseFloat(discountInput ? discountInput.value : 0) || 0;
@@ -42,7 +42,7 @@ function initOrderBuilder(mode = 'sale') {
 
     const grandTotal = Math.max(0, subtotal - discount + tax + shipping);
     if (grandTotalEl) {
-      grandTotalEl.textContent = '$' + grandTotal.toFixed(2);
+      grandTotalEl.textContent = '₹' + grandTotal.toFixed(2);
     }
   }
 
@@ -115,7 +115,7 @@ function initOrderBuilder(mode = 'sale') {
     const priceInput = newRow.querySelector('.item-price');
     priceInput.value = '0.00';
     const totalEl = newRow.querySelector('.item-line-total');
-    if (totalEl) totalEl.textContent = '$0.00';
+    if (totalEl) totalEl.textContent = '₹0.00';
     const stockBadge = newRow.querySelector('.item-stock-badge');
     if (stockBadge) {
       stockBadge.textContent = '-';
