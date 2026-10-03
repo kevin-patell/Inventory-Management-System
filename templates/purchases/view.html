@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Purchase Order - {{ purchase.po_number }}{% endblock %}
+
+{% block content %}
+<!-- Top Header & Actions -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+  <div class="d-flex align-items-center gap-2">
+    <a href="{{ url_for('purchases.index') }}" class="btn btn-sm btn-light border">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h4 class="fw-bold mb-0 text-dark">{{ purchase.po_number }}</h4>
+      <span class="text-muted extra-small">Order Placed: {{ purchase.order_date.strftime('%B %d, %Y at %H:%M') }}</span>
+    </div>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    {% if purchase.status == 'Pending' and current_user.has_role('Admin', 'Manager') %}
+    <form action="{{ url_for('purchases.receive', id=purchase.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Confirm delivery of this purchase order? All line items will be added to current inventory stock.');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+      <button type="submit" class="btn btn-sm btn-success d-flex align-items-center gap-1 shadow-sm">
+        <i class="bi bi-check-circle"></i> Mark as Received (Add Stock)
+      </button>
+    </form>
+    <form action="{{ url_for('purchases.cancel', id=purchase.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Cancel this purchase order?');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+      <button type="submit" class="btn btn-sm btn-outline-danger">
+        <i class="bi bi-x-circle"></i> Cancel Order
+      </button>
+    </form>
+    {% endif %}
+    <a href="{{ url_for('purchases.download_pdf', id=purchase.id) }}" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
+      <i class="bi bi-file-earmark-pdf"></i> Download PDF
+    </a>
+    <a href="{{ url_for('purchases.invoice', id=purchase.id) }}" target="_blank" class="btn btn-sm btn-light border d-flex align-items-center gap-1">
+      <i class="bi bi-printer"></i> Print Invoice
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Left Side: Order Line Items -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-card rounded-4 overflow-hidden mb-4">
+      <div class="content-card-header bg-white">
+        <h5 class="content-card-title mb-0">
+          <i class="bi bi-box-seam me-1 text-primary"></i> Order Items Breakdown
+        </h5>
+        <span class="badge bg-light text-dark border">{{ purchase.items|length }} Unique SKUs &bull; {{ purchase.total_quantity }} Units</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-custom mb-0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Product Details</th>
+              <th class="text-end">Cost Price</th>
+              <th class="text-center">Quantity</th>
+              <th class="text-end">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in purchase.items %}
+            <tr>
+              <td class="text-muted extra-small">{{ loop.index }}</td>
+              <td>
+                <a href="{{ url_for('products.view', id=item.product.id) }}" class="fw-bold text-dark text-decoration-none">
+                  {{ item.product.name }}
+                </a>
+                <span class="text-muted extra-small d-block">SKU: {{ item.product.sku }}</span>
+              </td>
+              <td class="text-end text-muted small">{{ item.unit_price|currency }}</td>
+              <td class="text-center fw-bold">{{ item.quantity }}</td>
+              <td class="text-end fw-semibold text-dark">{{ item.total_price|currency }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-3 bg-light border-top">
+        <div class="row justify-content-end">
+          <div class="col-md-5">
+            <div class="d-flex justify-content-between py-1 small">
+              <span class="text-muted">Subtotal:</span>
+              <span class="fw-semibold">{{ purchase.subtotal|currency }}</span>
+            </div>
+            {% if purchase.discount_amount > 0 %}
+            <div class="d-flex justify-content-between py-1 small text-success">
+              <span>Discount:</span>
+              <span>-{{ purchase.discount_amount|currency }}</span>
+            </div>
+            {% endif %}
+            {% if purchase.tax_amount > 0 %}
+            <div class="d-flex justify-content-between py-1 small text-muted">
+              <span>Tax:</span>
+              <span>+{{ purchase.tax_amount|currency }}</span>
+            </div>
+            {% endif %}
+            {% if purchase.shipping_fee > 0 %}
+            <div class="d-flex justify-content-between py-1 small text-muted">
+              <span>Shipping Fee:</span>
+              <span>+{{ purchase.shipping_fee|currency }}</span>
+            </div>
+            {% endif %}
+            <div class="d-flex justify-content-between py-2 border-top mt-2">
+              <span class="fw-bold text-dark fs-6">Grand Total:</span>
+              <span class="fw-bold text-primary fs-5">{{ purchase.total_amount|currency }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if purchase.notes %}
+    <div class="card border-0 shadow-card rounded-4 p-4">
+      <h6 class="fw-bold text-dark mb-2">Order Notes</h6>
+      <p class="text-muted small mb-0">{{ purchase.notes }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Right Side: Status & Supplier Info Cards -->
+  <div class="col-lg-4">
+    <!-- Status Card -->
+    <div class="card border-0 shadow-card rounded-4 p-4 mb-4">
+      <h6 class="fw-bold text-dark mb-3">Order Status</h6>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted small">Fulfillment:</span>
+        {% if purchase.status == 'Received' %}
+          <span class="badge badge-soft-success px-3 py-2 fs-6"><i class="bi bi-check2-circle me-1"></i> Received</span>
+        {% elif purchase.status == 'Pending' %}
+          <span class="badge badge-soft-warning px-3 py-2 fs-6"><i class="bi bi-clock me-1"></i> Pending</span>
+        {% else %}
+          <span class="badge badge-soft-secondary px-3 py-2 fs-6">{{ purchase.status }}</span>
+        {% endif %}
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted small">Payment:</span>
+        {% if purchase.payment_status == 'Paid' %}
+          <span class="badge bg-success-subtle text-success border border-success-subtle">{{ purchase.payment_status }}</span>
+        {% else %}
+          <span class="badge bg-warning-subtle text-warning border border-warning-subtle">{{ purchase.payment_status }}</span>
+        {% endif %}
+      </div>
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="text-muted small">Purchaser:</span>
+        <span class="fw-semibold small">{{ purchase.user.full_name if purchase.user else 'Authorized Staff' }}</span>
+      </div>
+    </div>
+
+    <!-- Vendor Card -->
+    <div class="card border-0 shadow-card rounded-4 p-4">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <div class="stat-icon info" style="width: 36px; height: 36px; font-size: 1rem;">
+          <i class="bi bi-building"></i>
+        </div>
+        <h6 class="fw-bold text-dark mb-0">Vendor Details</h6>
+      </div>
+
+      {% set supp = purchase.supplier %}
+      <h6 class="fw-bold text-dark mb-1">
+        <a href="{{ url_for('suppliers.view', id=supp.id) }}" class="text-decoration-none">{{ supp.name }}</a>
+      </h6>
+      <div class="small text-muted mb-3">
+        {% if supp.contact_person %}Attn: {{ supp.contact_person }}<br/>{% endif %}
+        {% if supp.email %}{{ supp.email }}<br/>{% endif %}
+        {% if supp.phone %}{{ supp.phone }}<br/>{% endif %}
+        {% if supp.tax_number %}Tax ID: {{ supp.tax_number }}{% endif %}
+      </div>
+
+      {% if supp.address %}
+      <div class="border-top pt-2 extra-small text-muted">
+        <strong>Address:</strong><br/>{{ supp.address }}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

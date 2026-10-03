@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} ({{ product.sku }}){% endblock %}
+
+{% block content %}
+<!-- Header Navigation -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+  <div class="d-flex align-items-center gap-2">
+    <a href="{{ url_for('products.index') }}" class="btn btn-sm btn-light border">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h4 class="fw-bold mb-0 text-dark">{{ product.name }}</h4>
+      <span class="text-muted extra-small">SKU: <strong class="text-primary">{{ product.sku }}</strong></span>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    {% if current_user.has_role('Admin', 'Manager') %}
+    <a href="{{ url_for('inventory.adjust', product_id=product.id) }}" class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1">
+      <i class="bi bi-sliders"></i> Adjust Stock
+    </a>
+    <a href="{{ url_for('purchases.create', reorder_product_id=product.id) }}" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
+      <i class="bi bi-cart-plus"></i> Order Stock
+    </a>
+    <a href="{{ url_for('products.edit', id=product.id) }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
+      <i class="bi bi-pencil"></i> Edit Product
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Product Details Grid -->
+<div class="row g-4 mb-4">
+  <!-- Left Column: Image & Details Card -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-card rounded-4 text-center p-4 h-100">
+      <div class="mb-3 d-flex justify-content-center">
+        <img src="{{ url_for('static', filename='uploads/products/' + product.image_url) }}" 
+             class="img-fluid rounded-4 border p-2 bg-light shadow-sm" style="max-height: 240px; object-fit: cover;"
+             alt="{{ product.name }}"
+             onerror="this.src='{{ url_for('static', filename='uploads/products/default_product.png') }}'">
+      </div>
+      <h5 class="fw-bold mb-1">{{ product.name }}</h5>
+      <div class="mb-3">
+        <span class="badge bg-light text-dark border me-1">{{ product.category.name if product.category else 'No Category' }}</span>
+        {% if product.status == 'Active' %}
+          <span class="badge badge-soft-success">Active</span>
+        {% else %}
+          <span class="badge badge-soft-secondary">{{ product.status }}</span>
+        {% endif %}
+      </div>
+
+      <div class="text-start border-top pt-3">
+        <div class="d-flex justify-content-between py-1 small">
+          <span class="text-muted">SKU / Barcode:</span>
+          <span class="fw-semibold">{{ product.sku }}</span>
+        </div>
+        <div class="d-flex justify-content-between py-1 small">
+          <span class="text-muted">Supplier:</span>
+          <span class="fw-semibold">
+            {% if product.supplier %}
+              <a href="{{ url_for('suppliers.view', id=product.supplier.id) }}" class="text-decoration-none">{{ product.supplier.name }}</a>
+            {% else %}
+              Unassigned
+            {% endif %}
+          </span>
+        </div>
+        <div class="d-flex justify-content-between py-1 small">
+          <span class="text-muted">Created:</span>
+          <span>{{ product.created_at.strftime('%b %d, %Y') }}</span>
+        </div>
+      </div>
+
+      {% if product.description %}
+      <div class="text-start border-top pt-3 mt-2">
+        <span class="fw-semibold small text-dark d-block mb-1">Description:</span>
+        <p class="text-muted extra-small mb-0" style="line-height: 1.5;">{{ product.description }}</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right Column: Financial & Stock Metrics -->
+  <div class="col-lg-8">
+    <div class="row g-3 mb-4">
+      <!-- Current Stock Card -->
+      <div class="col-sm-6">
+        <div class="stat-card {% if product.is_out_of_stock %}danger{% elif product.is_low_stock %}warning{% else %}success{% endif %} h-100">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="stat-label">Warehouse Stock Level</span>
+            <div class="stat-icon {% if product.is_out_of_stock %}danger{% elif product.is_low_stock %}warning{% else %}success{% endif %}">
+              <i class="bi bi-box-seam"></i>
+            </div>
+          </div>
+          <div class="stat-value {% if product.is_out_of_stock %}text-danger{% elif product.is_low_stock %}text-warning{% endif %}">
+            {{ product.current_stock }} <span class="fs-6 fw-normal text-muted">units</span>
+          </div>
+          <div class="small text-muted mt-2">
+            Reorder Level: <strong>{{ product.min_stock_level }} units</strong> &bull; Status: <strong>{{ product.stock_status }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gross Margin Card -->
+      <div class="col-sm-6">
+        <div class="stat-card primary h-100">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="stat-label">Profit Margin</span>
+            <div class="stat-icon primary">
+              <i class="bi bi-percent"></i>
+            </div>
+          </div>
+          <div class="stat-value text-primary">
+            {{ product.profit_margin }}%
+          </div>
+          <div class="small text-muted mt-2">
+            Cost: <strong>{{ product.purchase_price|currency }}</strong> &rarr; Selling: <strong>{{ product.selling_price|currency }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cost Valuation -->
+      <div class="col-sm-6">
+        <div class="card border-0 shadow-card p-3 rounded-3">
+          <span class="text-muted extra-small text-uppercase fw-semibold">Inventory Valuation (Cost)</span>
+          <h4 class="fw-bold text-dark mt-1 mb-0">{{ product.inventory_value|currency }}</h4>
+          <span class="text-muted extra-small mt-1">{{ product.current_stock }} units &times; {{ product.purchase_price|currency }}</span>
+        </div>
+      </div>
+
+      <!-- Retail Potential -->
+      <div class="col-sm-6">
+        <div class="card border-0 shadow-card p-3 rounded-3">
+          <span class="text-muted extra-small text-uppercase fw-semibold">Estimated Retail Value</span>
+          <h4 class="fw-bold text-success mt-1 mb-0">{{ product.retail_value|currency }}</h4>
+          <span class="text-muted extra-small mt-1">{{ product.current_stock }} units &times; {{ product.selling_price|currency }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Movement History Ledger -->
+    <div class="content-card mb-0">
+      <div class="content-card-header">
+        <h5 class="content-card-title">
+          <i class="bi bi-clock-history text-indigo"></i> Recent Stock Movement History
+        </h5>
+        <a href="{{ url_for('inventory.ledger', product_id=product.id) }}" class="extra-small fw-semibold text-primary text-decoration-none">
+          Full Product Ledger &rarr;
+        </a>
+      </div>
+      <div class="content-card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-custom mb-0">
+            <thead>
+              <tr>
+                <th>Date / Time</th>
+                <th>Type</th>
+                <th class="text-center">Change</th>
+                <th class="text-center">Stock Balance</th>
+                <th>Reference / Reason</th>
+                <th>User</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for txn in recent_transactions %}
+              <tr>
+                <td class="text-muted extra-small">{{ txn.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                  {% if txn.transaction_type == 'stock_added' %}
+                    <span class="badge badge-soft-success">Stock Added</span>
+                  {% elif txn.transaction_type == 'stock_removed' %}
+                    <span class="badge badge-soft-danger">Stock Dispatched</span>
+                  {% elif txn.transaction_type == 'stock_returned' %}
+                    <span class="badge badge-soft-info">Customer Return</span>
+                  {% elif txn.transaction_type == 'damaged_stock' %}
+                    <span class="badge badge-soft-danger">Damaged Goods</span>
+                  {% else %}
+                    <span class="badge badge-soft-warning">{{ txn.transaction_type }}</span>
+                  {% endif %}
+                </td>
+                <td class="text-center fw-bold {% if txn.quantity_change > 0 %}text-success{% else %}text-danger{% endif %}">
+                  {{ "%+d" % txn.quantity_change }}
+                </td>
+                <td class="text-center fw-semibold text-dark">
+                  {{ txn.previous_quantity }} &rarr; <strong>{{ txn.new_quantity }}</strong>
+                </td>
+                <td class="small">
+                  <span class="fw-semibold text-primary">{{ txn.reference_id or '-' }}</span>
+                  <span class="text-muted extra-small d-block">{{ txn.reason or '' }}</span>
+                </td>
+                <td class="text-muted extra-small">{{ txn.user.full_name if txn.user else 'System' }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="6" class="text-center py-4 text-muted">No inventory transactions logged yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Profile - {{ customer.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+  <div class="d-flex align-items-center gap-2">
+    <a href="{{ url_for('customers.index') }}" class="btn btn-sm btn-light border">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h4 class="fw-bold mb-0 text-dark">{{ customer.name }}</h4>
+      <span class="text-muted extra-small">Customer ID: #{{ customer.id }} &bull; Since: {{ customer.created_at.strftime('%b %d, %Y') }}</span>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('sales.create') }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm">
+      <i class="bi bi-cart-plus"></i> New Sale for Customer
+    </a>
+    <a href="{{ url_for('customers.edit', id=customer.id) }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+      <i class="bi bi-pencil"></i> Edit Details
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Customer Profile Card -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-card rounded-4 p-4 mb-4">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="stat-icon primary" style="width: 44px; height: 44px; font-size: 1.25rem;">
+          <i class="bi bi-person"></i>
+        </div>
+        <div>
+          <h5 class="fw-bold text-dark mb-0">{{ customer.name }}</h5>
+          <span class="text-muted extra-small">Client Account</span>
+        </div>
+      </div>
+
+      <div class="border-top pt-3 small">
+        <div class="mb-2">
+          <span class="text-muted d-block extra-small">Email Address</span>
+          <a href="mailto:{{ customer.email }}" class="text-decoration-none">{{ customer.email or 'N/A' }}</a>
+        </div>
+        <div class="mb-2">
+          <span class="text-muted d-block extra-small">Phone Number</span>
+          <span>{{ customer.phone or 'N/A' }}</span>
+        </div>
+        <div class="mb-2">
+          <span class="text-muted d-block extra-small">Billing / Delivery Address</span>
+          <span>{{ customer.address or 'N/A' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lifetime Metrics -->
+    <div class="stat-card success mb-3">
+      <span class="stat-label">Lifetime Value (Spend)</span>
+      <div class="stat-value text-success mt-1">{{ total_spent|currency }}</div>
+      <span class="text-muted extra-small">{{ sales|length }} Completed Orders</span>
+    </div>
+  </div>
+
+  <!-- Orders History -->
+  <div class="col-lg-8">
+    <div class="content-card mb-0">
+      <div class="content-card-header">
+        <h5 class="content-card-title">
+          <i class="bi bi-receipt text-primary"></i> Customer Purchase History
+        </h5>
+        <span class="badge bg-light text-dark border">{{ sales|length }} Orders</span>
+      </div>
+      <div class="content-card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-custom mb-0">
+            <thead>
+              <tr>
+                <th>Invoice #</th>
+                <th>Date</th>
+                <th>Payment</th>
+                <th class="text-end">Amount</th>
+                <th class="text-center">Status</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in sales %}
+              <tr>
+                <td>
+                  <a href="{{ url_for('sales.view', id=s.id) }}" class="fw-semibold text-primary text-decoration-none">
+                    {{ s.invoice_number }}
+                  </a>
+                </td>
+                <td class="text-muted extra-small">{{ s.sale_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td class="small text-muted">{{ s.payment_method }}</td>
+                <td class="text-end fw-semibold text-dark">{{ s.total_amount|currency }}</td>
+                <td class="text-center">
+                  {% if s.status == 'Completed' %}
+                    <span class="badge badge-soft-success">Completed</span>
+                  {% elif s.status == 'Returned' %}
+                    <span class="badge badge-soft-warning">Returned</span>
+                  {% else %}
+                    <span class="badge badge-soft-danger">{{ s.status }}</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <a href="{{ url_for('sales.view', id=s.id) }}" class="btn btn-sm btn-light border py-1 px-2">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="6" class="text-center py-4 text-muted">No orders found for this customer.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

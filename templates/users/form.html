@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h4 class="fw-bold mb-1">{{ title }}</h4>
+        <p class="text-muted small mb-0">Configure user credentials, access levels, and account status</p>
+      </div>
+      <a href="{{ url_for('users.index') }}" class="btn btn-sm btn-light border">
+        <i class="bi bi-arrow-left me-1"></i> Back to Users
+      </a>
+    </div>
+
+    <div class="card border-0 shadow-card rounded-4 p-4 p-md-5">
+      <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+            {{ form.full_name(class="form-control", placeholder="e.g. Marcus Vance") }}
+            {% if form.full_name.errors %}
+              <div class="text-danger small mt-1">{{ form.full_name.errors[0] }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Username <span class="text-danger">*</span></label>
+            {{ form.username(class="form-control", placeholder="e.g. marcusv") }}
+            {% if form.username.errors %}
+              <div class="text-danger small mt-1">{{ form.username.errors[0] }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Email Address <span class="text-danger">*</span></label>
+            {{ form.email(class="form-control", placeholder="user@apexi.com") }}
+            {% if form.email.errors %}
+              <div class="text-danger small mt-1">{{ form.email.errors[0] }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Phone Number</label>
+            {{ form.phone(class="form-control", placeholder="+1 (555) 000-0000") }}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">System Role <span class="text-danger">*</span></label>
+            {{ form.role_id(class="form-select") }}
+            {% if form.role_id.errors %}
+              <div class="text-danger small mt-1">{{ form.role_id.errors[0] }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6 d-flex align-items-center pt-4">
+            <div class="form-check">
+              {{ form.is_active(class="form-check-input", id="user-active") }}
+              <label class="form-check-label small" for="user-active">Active User Account</label>
+            </div>
+          </div>
+
+          <div class="col-12 border-top pt-3">
+            <label class="form-label">
+              Password {% if is_edit %}<span class="text-muted fw-normal small">(Leave empty to retain existing)</span>{% else %}<span class="text-danger">*</span>{% endif %}
+            </label>
+            {{ form.password(class="form-control", placeholder="At least 6 characters") }}
+            {% if form.password.errors %}
+              <div class="text-danger small mt-1">{{ form.password.errors[0] }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+          <a href="{{ url_for('users.index') }}" class="btn btn-light border px-4">Cancel</a>
+          <button type="submit" class="btn btn-primary px-4 fw-semibold">
+            <i class="bi bi-check-circle me-1"></i> {{ 'Save Changes' if is_edit else 'Create User' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

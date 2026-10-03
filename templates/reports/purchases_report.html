@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Procurement & Purchases Report{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+  <div>
+    <h3 class="fw-bold text-dark mb-1">Purchases & Procurement Report</h3>
+    <p class="text-muted small mb-0">Overview of supplier orders, delivery status, and procurement disbursements</p>
+  </div>
+  <a href="{{ url_for('reports.purchases_report', export='csv', start_date=start_date, end_date=end_date, supplier_id=selected_supplier) }}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-filetype-csv me-1"></i> Export Purchases CSV
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-card rounded-3 mb-4">
+  <div class="card-body p-3">
+    <form method="GET" action="{{ url_for('reports.purchases_report') }}" class="row g-2 align-items-center">
+      <div class="col-md-3">
+        <label class="form-label extra-small text-muted mb-0">From Date</label>
+        <input type="date" name="start_date" class="form-control form-control-sm" value="{{ start_date or '' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label extra-small text-muted mb-0">To Date</label>
+        <input type="date" name="end_date" class="form-control form-control-sm" value="{{ end_date or '' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label extra-small text-muted mb-0">Supplier</label>
+        <select name="supplier_id" class="form-select form-select-sm">
+          <option value="">All Suppliers</option>
+          {% for s in suppliers %}
+            <option value="{{ s.id }}" {% if selected_supplier == s.id %}selected{% endif %}>{{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3 d-flex align-items-end gap-1">
+        <button type="submit" class="btn btn-sm btn-dark w-100">Filter Purchases</button>
+        {% if start_date or end_date or selected_supplier %}
+        <a href="{{ url_for('reports.purchases_report') }}" class="btn btn-sm btn-light border"><i class="bi bi-x-lg"></i></a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Summary Card -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="stat-card primary">
+      <span class="stat-label">Total Received Spend</span>
+      <div class="stat-value text-primary mt-1">{{ total_spent|currency }}</div>
+      <span class="text-muted extra-small">For completed warehouse deliveries</span>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card info">
+      <span class="stat-label">Purchase Orders Count</span>
+      <div class="stat-value text-info mt-1">{{ purchases|length }}</div>
+      <span class="text-muted extra-small">In selected date range</span>
+    </div>
+  </div>
+</div>
+
+<!-- Purchases Table -->
+<div class="card border-0 shadow-card rounded-4 overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-custom mb-0">
+      <thead>
+        <tr>
+          <th>PO Number</th>
+          <th>Order Date</th>
+          <th>Supplier</th>
+          <th class="text-center">Status</th>
+          <th class="text-end">Subtotal</th>
+          <th class="text-end">Tax</th>
+          <th class="text-end">Shipping</th>
+          <th class="text-end">Total Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for po in purchases %}
+        <tr>
+          <td>
+            <a href="{{ url_for('purchases.view', id=po.id) }}" class="fw-bold text-primary text-decoration-none">
+              {{ po.po_number }}
+            </a>
+          </td>
+          <td class="small text-muted">{{ po.order_date.strftime('%Y-%m-%d') }}</td>
+          <td>{{ po.supplier.name if po.supplier else 'N/A' }}</td>
+          <td class="text-center">
+            {% if po.status == 'Received' %}
+              <span class="badge badge-soft-success">Received</span>
+            {% elif po.status == 'Pending' %}
+              <span class="badge badge-soft-warning">Pending</span>
+            {% else %}
+              <span class="badge badge-soft-secondary">{{ po.status }}</span>
+            {% endif %}
+          </td>
+          <td class="text-end text-muted small">{{ po.subtotal|currency }}</td>
+          <td class="text-end text-muted small">{{ po.tax_amount|currency }}</td>
+          <td class="text-end text-muted small">{{ po.shipping_fee|currency }}</td>
+          <td class="text-end fw-bold text-dark">{{ po.total_amount|currency }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" class="text-center py-4 text-muted">No purchase orders found matching criteria.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory Movement Ledger{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+  <div>
+    <h3 class="fw-bold text-dark mb-1">Inventory Movement Ledger</h3>
+    <p class="text-muted small mb-0">Immutable transaction history of all stock additions, deductions, damages, and reconciliations</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <div class="dropdown">
+      <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <i class="bi bi-download me-1"></i> Export Ledger
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+        <li><a class="dropdown-item" href="{{ url_for('inventory.export_ledger_csv') }}"><i class="bi bi-filetype-csv me-2 text-primary"></i> Export to CSV</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('inventory.export_ledger_excel') }}"><i class="bi bi-filetype-xlsx me-2 text-success"></i> Export to Excel</a></li>
+      </ul>
+    </div>
+    {% if current_user.has_role('Admin', 'Manager') %}
+    <a href="{{ url_for('inventory.adjust') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm">
+      <i class="bi bi-sliders"></i>
+      <span>Stock Adjustment</span>
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-card rounded-3 mb-4">
+  <div class="card-body p-3">
+    <form method="GET" action="{{ url_for('inventory.ledger') }}" class="row g-2 align-items-center">
+      <div class="col-md-4">
+        <select name="type" class="form-select form-select-sm">
+          <option value="all" {% if selected_type == 'all' %}selected{% endif %}>All Transaction Types</option>
+          <option value="stock_added" {% if selected_type == 'stock_added' %}selected{% endif %}>Stock Added (Purchases)</option>
+          <option value="stock_removed" {% if selected_type == 'stock_removed' %}selected{% endif %}>Stock Removed (Sales)</option>
+          <option value="stock_returned" {% if selected_type == 'stock_returned' %}selected{% endif %}>Customer Returns</option>
+          <option value="damaged_stock" {% if selected_type == 'damaged_stock' %}selected{% endif %}>Damaged / Spoiled</option>
+          <option value="adjustment_add" {% if selected_type == 'adjustment_add' %}selected{% endif %}>Adjustment Increase (+)</option>
+          <option value="adjustment_sub" {% if selected_type == 'adjustment_sub' %}selected{% endif %}>Adjustment Decrease (-)</option>
+        </select>
+      </div>
+      <div class="col-md-5">
+        <select name="product_id" class="form-select form-select-sm">
+          <option value="">All Products</option>
+          {% for p in products %}
+            <option value="{{ p.id }}" {% if selected_product == p.id %}selected{% endif %}>{{ p.name }} (SKU: {{ p.sku }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3 d-flex gap-1">
+        <button type="submit" class="btn btn-sm btn-dark w-100">Filter Ledger</button>
+        {% if selected_type != 'all' or selected_product %}
+        <a href="{{ url_for('inventory.ledger') }}" class="btn btn-sm btn-light border"><i class="bi bi-x-lg"></i></a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Ledger Table -->
+<div class="card border-0 shadow-card rounded-4 overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-custom mb-0">
+      <thead>
+        <tr>
+          <th>Date & Time</th>
+          <th>Product / SKU</th>
+          <th>Transaction Type</th>
+          <th class="text-center">Stock Change</th>
+          <th class="text-center">Previous Qty</th>
+          <th class="text-center">Updated Qty</th>
+          <th>Reference / Reason</th>
+          <th>Performed By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for txn in transactions %}
+        <tr>
+          <td class="text-muted extra-small">{{ txn.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+          <td>
+            <a href="{{ url_for('products.view', id=txn.product.id) }}" class="fw-bold text-dark text-decoration-none">
+              {{ txn.product.name }}
+            </a>
+            <span class="text-muted extra-small d-block">SKU: <span class="text-primary fw-semibold">{{ txn.product.sku }}</span></span>
+          </td>
+          <td>
+            {% if txn.transaction_type == 'stock_added' %}
+              <span class="badge badge-soft-success"><i class="bi bi-box-arrow-in-down me-1"></i> Stock Added</span>
+            {% elif txn.transaction_type == 'stock_removed' %}
+              <span class="badge badge-soft-danger"><i class="bi bi-box-arrow-up me-1"></i> Dispatched</span>
+            {% elif txn.transaction_type == 'stock_returned' %}
+              <span class="badge badge-soft-info"><i class="bi bi-arrow-return-left me-1"></i> Customer Return</span>
+            {% elif txn.transaction_type == 'damaged_stock' %}
+              <span class="badge badge-soft-danger"><i class="bi bi-exclamation-octagon me-1"></i> Damaged Goods</span>
+            {% elif txn.transaction_type == 'adjustment_add' %}
+              <span class="badge badge-soft-success"><i class="bi bi-plus-circle me-1"></i> Adjustment (+)</span>
+            {% elif txn.transaction_type == 'adjustment_sub' %}
+              <span class="badge badge-soft-warning"><i class="bi bi-dash-circle me-1"></i> Adjustment (-)</span>
+            {% else %}
+              <span class="badge badge-soft-secondary">{{ txn.transaction_type }}</span>
+            {% endif %}
+          </td>
+          <td class="text-center fw-bold {% if txn.quantity_change > 0 %}text-success{% else %}text-danger{% endif %}">
+            {{ "%+d" % txn.quantity_change }}
+          </td>
+          <td class="text-center text-muted">{{ txn.previous_quantity }}</td>
+          <td class="text-center fw-bold text-dark">{{ txn.new_quantity }}</td>
+          <td class="small">
+            <span class="fw-semibold text-primary">{{ txn.reference_id or '-' }}</span>
+            <span class="text-muted extra-small d-block">{{ txn.reason or '' }}</span>
+          </td>
+          <td class="small text-muted">{{ txn.user.full_name if txn.user else 'System Process' }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" class="text-center py-4 text-muted">No inventory transactions logged.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if pagination.pages > 1 %}
+  <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
+    <div class="small text-muted">Page <strong>{{ pagination.page }}</strong> of <strong>{{ pagination.pages }}</strong></div>
+    <ul class="pagination pagination-sm mb-0">
+      {% if pagination.has_prev %}
+      <li class="page-item"><a class="page-link" href="{{ url_for('inventory.ledger', page=pagination.prev_num, type=selected_type, product_id=selected_product) }}">&laquo;</a></li>
+      {% endif %}
+      {% for p_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+        {% if p_num %}
+          <li class="page-item {% if p_num == pagination.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('inventory.ledger', page=p_num, type=selected_type, product_id=selected_product) }}">{{ p_num }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+      {% if pagination.has_next %}
+      <li class="page-item"><a class="page-link" href="{{ url_for('inventory.ledger', page=pagination.next_num, type=selected_type, product_id=selected_product) }}">&raquo;</a></li>
+      {% endif %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

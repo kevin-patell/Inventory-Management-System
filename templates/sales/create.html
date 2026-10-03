@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}New Sale - Point of Sale{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+  <div>
+    <h3 class="fw-bold text-dark mb-1">New Sale Checkout (Stock-Out)</h3>
+    <p class="text-muted small mb-0">Process customer orders, auto-deduct warehouse stock, and issue invoices</p>
+  </div>
+  <a href="{{ url_for('sales.index') }}" class="btn btn-sm btn-light border">
+    <i class="bi bi-arrow-left me-1"></i> Back to Sales
+  </a>
+</div>
+
+<form method="POST" id="sales-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+  <div class="row g-4">
+    <!-- Left Column: Customer & Items -->
+    <div class="col-lg-8">
+      <!-- Customer Information Card -->
+      <div class="card border-0 shadow-card rounded-4 p-4 mb-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-person me-2 text-primary"></i>Customer Information</h5>
+        <div class="row g-3">
+          <div class="col-md-5">
+            <label class="form-label">Existing Customer (Optional)</label>
+            <select name="customer_id" id="customer-select" class="form-select">
+              <option value="0">-- Walk-in / Unregistered Customer --</option>
+              {% for c in customers %}
+                <option value="{{ c.id }}" data-phone="{{ c.phone or '' }}">{{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Customer Name</label>
+            <input type="text" name="customer_name" id="cust-name-input" class="form-control" value="Walk-in Customer" required>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Phone Number</label>
+            <input type="text" name="customer_phone" id="cust-phone-input" class="form-control" placeholder="+1 (555) 000-0000">
+          </div>
+        </div>
+      </div>
+
+      <!-- Line Items Card -->
+      <div class="card border-0 shadow-card rounded-4 overflow-hidden mb-4">
+        <div class="content-card-header bg-white">
+          <h5 class="content-card-title mb-0">
+            <i class="bi bi-cart me-1 text-primary"></i> Sale Items
+          </h5>
+          <button type="button" class="btn btn-sm btn-outline-primary" id="add-item-btn">
+            <i class="bi bi-plus-circle me-1"></i> Add Product Line
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-custom mb-0">
+            <thead>
+              <tr>
+                <th style="width: 45%;">Product Description</th>
+                <th class="text-center" style="width: 15%;">Unit Price ($)</th>
+                <th class="text-center" style="width: 15%;">Quantity</th>
+                <th class="text-end" style="width: 15%;">Total</th>
+                <th class="text-center" style="width: 10%;">Remove</th>
+              </tr>
+            </thead>
+            <tbody id="order-items-body">
+              <tr class="item-row">
+                <td>
+                  <select name="product_id[]" class="form-select form-select-sm item-product-select" required>
+                    <option value="" disabled selected>-- Select Product to Sell --</option>
+                    {% for p in products %}
+                      <option value="{{ p.id }}" 
+                              data-price="{{ p.selling_price }}" 
+                              data-stock="{{ p.current_stock }}"
+                              {% if p.is_out_of_stock %}disabled{% endif %}>
+                        {{ p.name }} (SKU: {{ p.sku }}) - {{ p.selling_price|currency }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                  <div class="d-flex align-items-center gap-2 mt-1">
+                    <span class="item-stock-badge badge bg-secondary extra-small">Stock: -</span>
+                  </div>
+                </td>
+                <td>
+                  <input type="number" step="0.01" min="0" name="unit_price[]" class="form-control form-control-sm text-end item-price" value="0.00" required>
+                </td>
+                <td>
+                  <input type="number" min="1" name="quantity[]" class="form-control form-control-sm text-center item-qty" value="1" required>
+                </td>
+                <td class="text-end fw-bold text-dark item-line-total">
+                  $0.00
+                </td>
+                <td class="text-center">
+                  <button type="button" class="btn btn-sm btn-outline-danger border-0 remove-row-btn" title="Remove line">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="card border-0 shadow-card rounded-4 p-4">
+        <label class="form-label fw-bold">Order Notes & Receipt Terms</label>
+        <textarea name="notes" class="form-control" rows="3" placeholder="Special delivery instructions, warranty notes, customer remarks..."></textarea>
+      </div>
+    </div>
+
+    <!-- Right Column: Payment & Totals -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-card rounded-4 p-4 sticky-top" style="top: 85px;">
+        <h5 class="fw-bold text-dark mb-3 border-bottom pb-2">Checkout Summary</h5>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Payment Method</label>
+          <select name="payment_method" class="form-select">
+            <option value="Cash" selected>Cash Payment</option>
+            <option value="Card">Credit / Debit Card</option>
+            <option value="Bank Transfer">Bank Wire / ACH</option>
+            <option value="Mobile Payment">Mobile / UPI Payment</option>
+          </select>
+        </div>
+
+        <div class="d-flex justify-content-between py-2 border-bottom">
+          <span class="text-muted">Subtotal:</span>
+          <span class="fw-bold text-dark" id="calc-subtotal">$0.00</span>
+        </div>
+
+        <div class="py-2 border-bottom">
+          <label class="form-label extra-small text-muted mb-1">Discount Amount ($)</label>
+          <input type="number" step="0.01" min="0" name="discount_amount" id="calc-discount" class="form-control form-control-sm text-end" value="0.00">
+        </div>
+
+        <div class="py-2 border-bottom">
+          <label class="form-label extra-small text-muted mb-1">Tax Amount ($)</label>
+          <input type="number" step="0.01" min="0" name="tax_amount" id="calc-tax" class="form-control form-control-sm text-end" value="0.00">
+        </div>
+
+        <div class="d-flex justify-content-between py-3 my-2 bg-light p-3 rounded-3">
+          <span class="fw-bold fs-6 text-dark">Total Due:</span>
+          <span class="fw-bold fs-5 text-success" id="calc-grand-total">$0.00</span>
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+          <button type="submit" class="btn btn-primary py-2 fw-semibold shadow-sm">
+            <i class="bi bi-cart-check me-1"></i> Complete & Print Invoice
+          </button>
+          <a href="{{ url_for('sales.index') }}" class="btn btn-light border py-2">Cancel</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/pos.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    initOrderBuilder('sale');
+
+    // Customer Dropdown Change
+    const custSelect = document.getElementById('customer-select');
+    const nameInput = document.getElementById('cust-name-input');
+    const phoneInput = document.getElementById('cust-phone-input');
+
+    custSelect.addEventListener('change', function () {
+      if (this.value !== '0') {
+        const option = this.options[this.selectedIndex];
+        nameInput.value = option.text;
+        phoneInput.value = option.getAttribute('data-phone') || '';
+      } else {
+        nameInput.value = 'Walk-in Customer';
+        phoneInput.value = '';
+      }
+    });
+  });
+</script>
+{% endblock %}

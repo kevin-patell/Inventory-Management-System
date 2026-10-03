@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}System Notifications{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+  <div>
+    <h3 class="fw-bold text-dark mb-1">In-App Notifications</h3>
+    <p class="text-muted small mb-0">System alerts for low stock levels, supplier purchase orders, and sales activity</p>
+  </div>
+  <form action="{{ url_for('notifications.mark_all_read') }}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <button type="submit" class="btn btn-sm btn-outline-primary">
+      <i class="bi bi-check2-all me-1"></i> Mark All as Read
+    </button>
+  </form>
+</div>
+
+<div class="card border-0 shadow-card rounded-4 overflow-hidden">
+  <div class="list-group list-group-flush">
+    {% for n in notifications %}
+    <div class="list-group-item p-3 d-flex align-items-start gap-3 {% if not n.is_read %}bg-light{% endif %}">
+      <div class="stat-icon {% if n.type == 'out_of_stock' %}danger{% elif n.type == 'low_stock' %}warning{% elif n.type == 'sale' %}success{% else %}info{% endif %}" style="width: 40px; height: 40px; font-size: 1.1rem; flex-shrink: 0;">
+        {% if n.type == 'out_of_stock' %}
+          <i class="bi bi-exclamation-octagon-fill"></i>
+        {% elif n.type == 'low_stock' %}
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        {% elif n.type == 'sale' %}
+          <i class="bi bi-receipt"></i>
+        {% elif n.type == 'purchase' %}
+          <i class="bi bi-truck"></i>
+        {% else %}
+          <i class="bi bi-bell"></i>
+        {% endif %}
+      </div>
+
+      <div class="flex-grow-1">
+        <div class="d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold text-dark mb-1">{{ n.title }}</h6>
+          <span class="text-muted extra-small">{{ n.created_at.strftime('%b %d, %Y %H:%M') }}</span>
+        </div>
+        <p class="text-muted small mb-2">{{ n.message }}</p>
+
+        <div class="d-flex align-items-center gap-2">
+          {% if n.link %}
+          <a href="{{ n.link }}" class="btn btn-sm btn-outline-primary py-0 px-2 extra-small">
+            View Related Record &rarr;
+          </a>
+          {% endif %}
+
+          {% if not n.is_read %}
+          <form action="{{ url_for('notifications.mark_read', id=n.id) }}" method="POST" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="btn btn-sm btn-light border py-0 px-2 extra-small">
+              Mark Read
+            </button>
+          </form>
+          {% endif %}
+
+          <form action="{{ url_for('notifications.delete', id=n.id) }}" method="POST" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="btn btn-sm btn-light text-danger border-0 py-0 px-2 extra-small" title="Dismiss">
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
+      No system notifications at this time.
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

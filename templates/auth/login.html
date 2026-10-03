@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - {{ app_config.COMPANY_NAME }}{% endblock %}
+
+{% block auth_content %}
+<div class="row justify-content-center w-100" style="max-width: 460px;">
+  <div class="col-12">
+    <!-- Header / Logo -->
+    <div class="text-center mb-4">
+      <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 shadow-sm mb-3" style="width: 54px; height: 54px; font-size: 1.75rem;">
+        <i class="bi bi-boxes"></i>
+      </div>
+      <h3 class="fw-bold text-dark mb-1">Apex Inventory System</h3>
+      <p class="text-muted small">Sign in to manage warehouse products, sales, and stock</p>
+    </div>
+
+    <!-- Flash Messages inside auth -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm mb-3" role="alert">
+            <small>{{ message }}</small>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Login Card -->
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="card-body p-4 p-sm-5">
+        <form method="POST" action="{{ url_for('auth.login') }}">
+          {{ form.hidden_tag() }}
+
+          <div class="mb-3">
+            <label class="form-label" for="username">Username or Email</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-person"></i></span>
+              {{ form.username(class="form-control border-start-0 ps-0", id="username", placeholder="Enter username or email", required=True) }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="password">Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+              {{ form.password(class="form-control border-start-0 ps-0", id="password", placeholder="Enter password", required=True) }}
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="form-check">
+              {{ form.remember(class="form-check-input", id="remember") }}
+              <label class="form-check-label small text-muted" for="remember">Remember me</label>
+            </div>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary py-2 fw-semibold shadow-sm">
+              <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Portal
+            </button>
+          </div>
+        </form>
+
+        <!-- Demo Accounts Quick Fill -->
+        <div class="mt-4 pt-4 border-top">
+          <div class="text-center text-muted extra-small mb-2 fw-semibold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+            Demo Credentials (Click to Autofill)
+          </div>
+          <div class="d-flex gap-2 justify-content-center flex-wrap">
+            <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 extra-small" onclick="fillDemo('admin', 'admin123')">
+              <i class="bi bi-shield-check"></i> Admin
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-info py-1 px-2 extra-small" onclick="fillDemo('manager', 'manager123')">
+              <i class="bi bi-person-gear"></i> Manager
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2 extra-small" onclick="fillDemo('staff', 'staff123')">
+              <i class="bi bi-person"></i> Staff
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-4 text-muted small">
+      &copy; 2026 {{ app_config.COMPANY_NAME }}. All rights reserved.
+    </div>
+  </div>
+</div>
+
+<script>
+  function fillDemo(username, password) {
+    document.getElementById('username').value = username;
+    document.getElementById('password').value = password;
+  }
+</script>
+{% endblock %}

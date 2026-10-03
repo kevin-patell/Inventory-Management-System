@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Reports & Analytics{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+  <div>
+    <h3 class="fw-bold text-dark mb-1">Financial & Inventory Reports</h3>
+    <p class="text-muted small mb-0">Generate, analyze, and export comprehensive business intelligence statements</p>
+  </div>
+</div>
+
+<!-- Macro Financial Overview -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3 col-sm-6">
+    <div class="card border-0 shadow-card p-3 rounded-4">
+      <span class="text-muted extra-small text-uppercase fw-semibold">Inventory Cost Value</span>
+      <h3 class="fw-bold text-dark mt-1 mb-0">{{ total_inventory_cost|currency }}</h3>
+      <span class="text-muted extra-small">Total assets in warehouse</span>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card border-0 shadow-card p-3 rounded-4">
+      <span class="text-muted extra-small text-uppercase fw-semibold">Estimated Retail Value</span>
+      <h3 class="fw-bold text-success mt-1 mb-0">{{ total_retail_value|currency }}</h3>
+      <span class="text-muted extra-small">Total potential sales value</span>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card border-0 shadow-card p-3 rounded-4">
+      <span class="text-muted extra-small text-uppercase fw-semibold">Sales Revenue (All-Time)</span>
+      <h3 class="fw-bold text-primary mt-1 mb-0">{{ total_sales_revenue|currency }}</h3>
+      <span class="text-muted extra-small">Completed customer invoices</span>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="card border-0 shadow-card p-3 rounded-4">
+      <span class="text-muted extra-small text-uppercase fw-semibold">Procurement Spend (All-Time)</span>
+      <h3 class="fw-bold text-info mt-1 mb-0">{{ total_purchases_spent|currency }}</h3>
+      <span class="text-muted extra-small">Received supplier purchase orders</span>
+    </div>
+  </div>
+</div>
+
+<!-- Report Navigation Cards -->
+<div class="row g-4">
+  <!-- Stock Valuation Report -->
+  <div class="col-md-6 col-lg-3">
+    <div class="card border-0 shadow-card rounded-4 p-4 h-100 text-center">
+      <div class="stat-icon primary mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.5rem;">
+        <i class="bi bi-wallet2"></i>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">Stock Valuation</h5>
+      <p class="text-muted small mb-3">Itemized current stock levels, unit purchase costs, retail prices, and total inventory value.</p>
+      <div class="mt-auto">
+        <a href="{{ url_for('reports.stock_report') }}" class="btn btn-outline-primary btn-sm w-100 fw-semibold">
+          View Stock Report &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sales Performance Report -->
+  <div class="col-md-6 col-lg-3">
+    <div class="card border-0 shadow-card rounded-4 p-4 h-100 text-center">
+      <div class="stat-icon success mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.5rem;">
+        <i class="bi bi-graph-up-arrow"></i>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">Sales Analytics</h5>
+      <p class="text-muted small mb-3">Filter sales by date range, customer billing, and evaluate daily/monthly turnover.</p>
+      <div class="mt-auto">
+        <a href="{{ url_for('reports.sales_report') }}" class="btn btn-outline-success btn-sm w-100 fw-semibold">
+          View Sales Report &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Purchases & Vendor Report -->
+  <div class="col-md-6 col-lg-3">
+    <div class="card border-0 shadow-card rounded-4 p-4 h-100 text-center">
+      <div class="stat-icon info mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.5rem;">
+        <i class="bi bi-truck"></i>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">Procurement Report</h5>
+      <p class="text-muted small mb-3">Summary of purchase orders, supplier volumes, freight costs, and procurement expenses.</p>
+      <div class="mt-auto">
+        <a href="{{ url_for('reports.purchases_report') }}" class="btn btn-outline-info btn-sm w-100 fw-semibold">
+          View Purchases Report &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profit & Loss Report -->
+  <div class="col-md-6 col-lg-3">
+    <div class="card border-0 shadow-card rounded-4 p-4 h-100 text-center">
+      <div class="stat-icon warning mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.5rem;">
+        <i class="bi bi-cash-stack"></i>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">Profit & Loss</h5>
+      <p class="text-muted small mb-3">Analyze gross margin %, COGS (cost of goods sold), and top profit-generating products.</p>
+      <div class="mt-auto">
+        <a href="{{ url_for('reports.profit_report') }}" class="btn btn-outline-warning btn-sm w-100 fw-semibold">
+          View Profit Report &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

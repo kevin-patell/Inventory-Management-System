@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Gross Profit & Margin Report{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+  <div>
+    <h3 class="fw-bold text-dark mb-1">Gross Profit & Margin Analytics</h3>
+    <p class="text-muted small mb-0">Evaluate net profitability by comparing realized revenue against historical cost of goods sold</p>
+  </div>
+  <a href="{{ url_for('reports.index') }}" class="btn btn-sm btn-light border">
+    <i class="bi bi-arrow-left me-1"></i> Reports Hub
+  </a>
+</div>
+
+<!-- Financial Summary Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card primary">
+      <span class="stat-label">Sales Revenue</span>
+      <div class="stat-value text-primary mt-1">{{ total_sales_revenue|currency }}</div>
+      <span class="text-muted extra-small">Total realized turnover</span>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card warning">
+      <span class="stat-label">Cost of Goods Sold (COGS)</span>
+      <div class="stat-value text-dark mt-1">{{ total_cogs|currency }}</div>
+      <span class="text-muted extra-small">Wholesale purchase cost of sold items</span>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card success">
+      <span class="stat-label">Gross Profit</span>
+      <div class="stat-value text-success mt-1">{{ gross_profit|currency }}</div>
+      <span class="text-muted extra-small">Revenue minus COGS</span>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="stat-card info">
+      <span class="stat-label">Overall Profit Margin</span>
+      <div class="stat-value text-info mt-1">{{ profit_margin }}%</div>
+      <span class="text-muted extra-small">Gross margin percentage</span>
+    </div>
+  </div>
+</div>
+
+<!-- Top Products Profit Contribution Table -->
+<div class="card border-0 shadow-card rounded-4 overflow-hidden">
+  <div class="content-card-header bg-white">
+    <h5 class="content-card-title mb-0">
+      <i class="bi bi-trophy text-warning me-1"></i> Top Products by Profit Contribution
+    </h5>
+    <span class="badge bg-light text-dark border">Highest Margin Generators</span>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-custom mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Product / SKU</th>
+          <th class="text-center">Units Sold</th>
+          <th class="text-end">Total Sales Revenue</th>
+          <th class="text-end">Total Realized Profit</th>
+          <th class="text-center">Margin %</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in top_items %}
+        <tr>
+          <td class="text-muted extra-small">{{ loop.index }}</td>
+          <td>
+            <span class="fw-bold text-dark d-block">{{ item.name }}</span>
+            <span class="text-muted extra-small">SKU: <span class="fw-semibold text-primary">{{ item.sku }}</span></span>
+          </td>
+          <td class="text-center fw-bold">{{ item.total_qty_sold }}</td>
+          <td class="text-end fw-semibold text-dark">{{ item.total_sales_val|currency }}</td>
+          <td class="text-end fw-bold text-success">{{ item.total_item_profit|currency }}</td>
+          <td class="text-center">
+            {% if item.total_sales_val > 0 %}
+              {% set m = (item.total_item_profit / item.total_sales_val * 100)|round(1) %}
+              <span class="badge badge-soft-success">{{ m }}%</span>
+            {% else %}
+              <span class="badge badge-soft-secondary">0%</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center py-4 text-muted">No sales records to calculate profit margins.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

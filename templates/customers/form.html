@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h4 class="fw-bold mb-1">{{ title }}</h4>
+        <p class="text-muted small mb-0">Record customer billing information and contact points</p>
+      </div>
+      <a href="{{ url_for('customers.index') }}" class="btn btn-sm btn-light border">
+        <i class="bi bi-arrow-left me-1"></i> Back to Directory
+      </a>
+    </div>
+
+    <div class="card border-0 shadow-card rounded-4 p-4 p-md-5">
+      <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+          <label class="form-label">Customer / Business Name <span class="text-danger">*</span></label>
+          {{ form.name(class="form-control", placeholder="e.g. Acme Corporation or John Doe") }}
+          {% if form.name.errors %}
+            <div class="text-danger small mt-1">{{ form.name.errors[0] }}</div>
+          {% endif %}
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Email Address</label>
+            {{ form.email(class="form-control", placeholder="client@company.com") }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Phone Number</label>
+            {{ form.phone(class="form-control", placeholder="+1 (555) 000-0000") }}
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">Billing / Shipping Address</label>
+          {{ form.address(class="form-control", rows="3", placeholder="Street, Suite, City, State, ZIP...") }}
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+          <a href="{{ url_for('customers.index') }}" class="btn btn-light border px-4">Cancel</a>
+          <button type="submit" class="btn btn-primary px-4 fw-semibold">
+            <i class="bi bi-check-circle me-1"></i> {{ 'Save Changes' if is_edit else 'Create Customer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

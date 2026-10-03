@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Stock Adjustment{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+  <div>
+    <h3 class="fw-bold text-dark mb-1">Manual Stock Adjustment</h3>
+    <p class="text-muted small mb-0">Record physical count reconciliations, damaged goods, or direct warehouse adjustments</p>
+  </div>
+  <a href="{{ url_for('inventory.ledger') }}" class="btn btn-sm btn-light border">
+    <i class="bi bi-clock-history me-1"></i> View Movement Ledger
+  </a>
+</div>
+
+<div class="row g-4">
+  <!-- Adjustment Form -->
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-card rounded-4 p-4">
+      <h5 class="fw-bold text-dark mb-3"><i class="bi bi-sliders text-warning me-2"></i>Apply Stock Adjustment</h5>
+      <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+          <label class="form-label">Select Product <span class="text-danger">*</span></label>
+          {{ form.product_id(class="form-select") }}
+          {% if form.product_id.errors %}
+            <div class="text-danger small mt-1">{{ form.product_id.errors[0] }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Adjustment Type <span class="text-danger">*</span></label>
+          {{ form.adjustment_type(class="form-select") }}
+          <div class="form-text extra-small">
+            <strong>Recount:</strong> Sets product stock to exact count entered below.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Quantity / Unit Count <span class="text-danger">*</span></label>
+          {{ form.quantity(class="form-control", type="number", min="0") }}
+          {% if form.quantity.errors %}
+            <div class="text-danger small mt-1">{{ form.quantity.errors[0] }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">Reason / Justification <span class="text-danger">*</span></label>
+          {{ form.reason(class="form-control", rows="3", placeholder="e.g. Broken packaging, shelf count audit discrepancy...") }}
+          {% if form.reason.errors %}
+            <div class="text-danger small mt-1">{{ form.reason.errors[0] }}</div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 fw-semibold">
+          <i class="bi bi-check2-circle me-1"></i> Apply Adjustment to Inventory
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Recent Adjustments History -->
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-card rounded-4 overflow-hidden">
+      <div class="content-card-header bg-white">
+        <h5 class="content-card-title mb-0">
+          <i class="bi bi-journal-text me-1 text-primary"></i> Recent Stock Adjustments
+        </h5>
+        <span class="badge bg-light text-dark border">{{ recent_adjustments|length }} Records</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-custom mb-0">
+          <thead>
+            <tr>
+              <th>Adjustment #</th>
+              <th>Product</th>
+              <th>Type</th>
+              <th class="text-center">Stock Change</th>
+              <th>Reason</th>
+              <th>User</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for adj in recent_adjustments %}
+            <tr>
+              <td class="fw-semibold text-primary small">{{ adj.adjustment_number }}</td>
+              <td>
+                <span class="fw-bold text-dark d-block">{{ adj.product.name[:25] }}</span>
+                <span class="text-muted extra-small">SKU: {{ adj.product.sku }}</span>
+              </td>
+              <td>
+                {% if adj.adjustment_type == 'add' %}
+                  <span class="badge badge-soft-success">Stock Added</span>
+                {% elif adj.adjustment_type == 'damaged' %}
+                  <span class="badge badge-soft-danger">Damaged Goods</span>
+                {% elif adj.adjustment_type == 'recount' %}
+                  <span class="badge badge-soft-info">Audit Recount</span>
+                {% else %}
+                  <span class="badge badge-soft-warning">Subtract</span>
+                {% endif %}
+              </td>
+              <td class="text-center small">
+                <span class="text-muted">{{ adj.previous_quantity }}</span> &rarr; 
+                <strong class="text-dark">{{ adj.new_quantity }}</strong>
+              </td>
+              <td class="small text-muted">{{ adj.reason[:30] }}</td>
+              <td class="extra-small text-muted">{{ adj.user.full_name if adj.user else 'Admin' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="6" class="text-center py-4 text-muted">No manual adjustments on record.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

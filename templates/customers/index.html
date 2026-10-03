@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Directory{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+  <div>
+    <h3 class="fw-bold text-dark mb-1">Customer Accounts</h3>
+    <p class="text-muted small mb-0">Manage customer contacts, billing addresses, and order histories</p>
+  </div>
+  <a href="{{ url_for('customers.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm">
+    <i class="bi bi-person-plus"></i>
+    <span>Add Customer</span>
+  </a>
+</div>
+
+<!-- Search -->
+<div class="card border-0 shadow-card rounded-3 mb-4">
+  <div class="card-body p-3">
+    <form method="GET" action="{{ url_for('customers.index') }}" class="row g-2 align-items-center">
+      <div class="col-md-5">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-white text-muted"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" class="form-control" placeholder="Search by customer name, email, phone..." value="{{ search_query }}">
+        </div>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-sm btn-dark w-100">Search</button>
+      </div>
+      {% if search_query %}
+      <div class="col-md-1">
+        <a href="{{ url_for('customers.index') }}" class="btn btn-sm btn-light border w-100"><i class="bi bi-x-lg"></i></a>
+      </div>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+<!-- Customers Table -->
+<div class="card border-0 shadow-card rounded-4 overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-custom mb-0">
+      <thead>
+        <tr>
+          <th>Customer Name</th>
+          <th>Email Address</th>
+          <th>Phone Number</th>
+          <th>Address</th>
+          <th class="text-center">Orders Placed</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in customers %}
+        <tr>
+          <td>
+            <a href="{{ url_for('customers.view', id=c.id) }}" class="fw-bold text-dark text-decoration-none">
+              {{ c.name }}
+            </a>
+          </td>
+          <td class="small">{{ c.email or '-' }}</td>
+          <td class="small">{{ c.phone or '-' }}</td>
+          <td class="small text-muted">{{ c.address[:35] if c.address else '-' }}</td>
+          <td class="text-center">
+            <span class="badge bg-light text-primary border">{{ c.sales.count() }} orders</span>
+          </td>
+          <td class="text-end">
+            <a href="{{ url_for('customers.view', id=c.id) }}" class="btn btn-sm btn-light border py-1 px-2" title="View Profile">
+              <i class="bi bi-eye"></i>
+            </a>
+            <a href="{{ url_for('customers.edit', id=c.id) }}" class="btn btn-sm btn-outline-primary py-1 px-2" title="Edit Customer">
+              <i class="bi bi-pencil"></i>
+            </a>
+            {% if current_user.has_role('Admin', 'Manager') %}
+            <form action="{{ url_for('customers.delete', id=c.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete customer {{ c.name }}?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Delete">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center py-4 text-muted">No customers found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
