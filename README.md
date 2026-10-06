@@ -267,3 +267,5 @@ python test_system.py
 
 ## 📄 License
 This project is open-source under the MIT License.
+#   I n v e n t o r y - M a n a g e m e n t - S y s t e m  
+ 
